@@ -1,0 +1,104 @@
+#__en_de_translator_popup__ {
+  position: absolute;
+  z-index: 2147483647;
+  min-width: 220px;
+  max-width: 320px;
+  background: #ffffff;
+  color: #1a1a1a;
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 12px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.22);
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-size: 15px;
+  line-height: 1.45;
+  overflow: hidden;
+  user-select: none;
+  -webkit-user-select: none;
+  animation: __endeTr_in 120ms ease-out;
+}
+
+@keyframes __endeTr_in {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+#__en_de_translator_popup__ .__endeTr_header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: #ffffff;
+}
+
+#__en_de_translator_popup__ .__endeTr_title {
+  font-weight: 600;
+  font-size: 14px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  flex: 1;
+}
+
+#__en_de_translator_popup__ .__endeTr_close {
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  border: none;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+#__en_de_translator_popup__ .__endeTr_close:hover,
+#__en_de_translator_popup__ .__endeTr_close:active {
+  background: rgba(255, 255, 255, 0.32);
+}
+
+#__en_de_translator_popup__ .__endeTr_body {
+  padding: 12px 14px;
+  background: #ffffff;
+  color: #1a1a1a;
+  font-size: 15px;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+#__en_de_translator_popup__[data-state="error"] .__endeTr_body {
+  color: #b00020;
+}
+
+#__en_de_translator_popup__ .__endeTr_spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(0, 0, 0, 0.18);
+  border-top-color: #667eea;
+  border-radius: 50%;
+  vertical-align: -2px;
+  margin-right: 6px;
+  animation: __endeTr_spin 0.7s linear infinite;
+}
+
+@keyframes __endeTr_spin {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-color-scheme: dark) {
+  #__en_de_translator_popup__ {
+    background: #1f1f22;
+    color: #f5f5f7;
+    border-color: rgba(255, 255, 255, 0.12);
+  }
+  #__en_de_translator_popup__ .__endeTr_body {
+    background: #1f1f22;
+    color: #f5f5f7;
+  }
+}
