@@ -2,114 +2,303 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Bookmarklet Installation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EN→DE Übersetzer – Installation</title>
   <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      max-width: 600px;
-      margin: 50px auto;
-      padding: 20px;
-      background: #f5f5f5;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f2f2f7;
+      color: #1c1c1e;
+      min-height: 100vh;
+      padding: 0 0 40px;
     }
+    .hero {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 36px 20px 28px;
+      text-align: center;
+    }
+    .hero h1 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+    .hero p  { font-size: 15px; opacity: 0.9; line-height: 1.5; }
+
     .card {
       background: white;
-      padding: 30px;
-      border-radius: 12px;
-      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      border-radius: 16px;
+      margin: 16px 16px 0;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
     }
-    h1 {
-      color: #333;
-      margin-bottom: 10px;
-    }
-    p {
-      color: #666;
-      line-height: 1.6;
-      margin: 15px 0;
-    }
-    .bookmarklet-link {
-      display: inline-block;
-      background: #667eea;
-      color: white;
-      padding: 12px 24px;
-      border-radius: 6px;
-      text-decoration: none;
+    .card-title {
+      font-size: 13px;
       font-weight: 600;
-      margin: 20px 0;
-      transition: background 0.2s;
+      color: #6e6e73;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      padding: 14px 16px 6px;
     }
-    .bookmarklet-link:hover {
-      background: #764ba2;
+
+    /* Step rows */
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 14px;
+      padding: 14px 16px;
+      border-top: 1px solid #f2f2f7;
     }
-    .code {
-      background: #f9f9f9;
-      border: 1px solid #ddd;
-      padding: 15px;
+    .step:first-of-type { border-top: none; }
+    .step-num {
+      min-width: 28px; height: 28px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border-radius: 50%;
+      font-weight: 700;
+      font-size: 14px;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .step-text { font-size: 15px; line-height: 1.55; color: #1c1c1e; }
+    .step-text strong { font-weight: 600; }
+    .step-text .sub {
+      display: block;
+      font-size: 13px;
+      color: #6e6e73;
+      margin-top: 3px;
+    }
+    .badge {
+      display: inline-block;
+      background: #f2f2f7;
       border-radius: 6px;
-      font-family: monospace;
+      padding: 1px 7px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #3a3a3c;
+      white-space: nowrap;
+    }
+
+    /* Copy code box */
+    .code-area {
+      padding: 12px 16px 16px;
+      border-top: 1px solid #f2f2f7;
+    }
+    .code-label {
       font-size: 12px;
-      overflow-x: auto;
+      color: #6e6e73;
+      margin-bottom: 8px;
+    }
+    .code-box {
+      background: #f2f2f7;
+      border-radius: 10px;
+      padding: 11px 12px;
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+      font-size: 11px;
+      color: #3a3a3c;
       word-break: break-all;
+      line-height: 1.5;
+      max-height: 80px;
+      overflow: hidden;
+      position: relative;
+      cursor: pointer;
+      -webkit-user-select: all;
+      user-select: all;
     }
-    .steps {
-      background: #e8f5e9;
-      padding: 20px;
-      border-radius: 6px;
-      margin: 20px 0;
+    .code-box::after {
+      content: "";
+      position: absolute;
+      bottom: 0; left: 0; right: 0;
+      height: 28px;
+      background: linear-gradient(transparent, #f2f2f7);
+      border-radius: 0 0 10px 10px;
+      pointer-events: none;
     }
-    .steps ol {
-      margin: 10px 0;
-      padding-left: 20px;
+    .copy-btn {
+      width: 100%;
+      margin-top: 10px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity 0.15s;
     }
-    .steps li {
-      margin: 8px 0;
+    .copy-btn:active { opacity: 0.8; }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #1c1c1e;
+      color: white;
+      padding: 11px 24px;
+      border-radius: 20px;
+      font-size: 15px;
+      font-weight: 500;
+      white-space: nowrap;
+      z-index: 9999;
+      transition: transform 0.25s ease, opacity 0.25s ease;
+      opacity: 0;
+      pointer-events: none;
+    }
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    /* Demo box */
+    .demo {
+      padding: 16px;
+      border-top: 1px solid #f2f2f7;
+      font-size: 14px;
+      color: #3a3a3c;
+      line-height: 1.6;
+    }
+    .demo strong { font-weight: 600; color: #1c1c1e; }
+
+    .tip {
+      margin: 16px 16px 0;
+      background: #fff9e6;
+      border-left: 4px solid #f0a500;
+      border-radius: 0 10px 10px 0;
+      padding: 12px 14px;
+      font-size: 14px;
+      color: #3a3a3c;
+      line-height: 1.5;
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>📚 Englisch Übersetzer Bookmarklet</h1>
-    <p>Nutze dieses Bookmarklet auf jeder Website, um englische Wörter zu übersetzen!</p>
 
-    <h2>Installation:</h2>
-    <div class="steps">
-      <ol>
-        <li><strong>Klick und halte</strong> den Button unten gedrückt (nicht loslassen!)</li>
-        <li><strong>Wähle "Lesezeichen hinzufügen"</strong> oder "Add Bookmark"</li>
-        <li><strong>Name:</strong> "📚 Englisch Übersetzer"</li>
-        <li><strong>Speichern/Done</strong></li>
-      </ol>
-    </div>
+<div class="hero">
+  <h1>EN→DE Übersetzer</h1>
+  <p>Doppeltippe auf englische Wörter oder markiere einen Satz –<br>die deutsche Übersetzung erscheint als Popup.</p>
+</div>
 
-    <a href="javascript:(function(){const style=document.createElement('style');style.textContent=`
-.translator-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:99999;display:flex;align-items:flex-end}
-.translator-panel{background:white;width:100%;max-width:500px;border-radius:12px 12px 0 0;padding:20px;box-shadow:0 -4px 20px rgba(0,0,0,0.2);max-height:80vh;overflow-y:auto}
-.translator-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;border-bottom:2px solid #667eea;padding-bottom:10px}
-.translator-header h2{margin:0;color:#333;font-size:18px}
-.translator-close{background:none;border:none;font-size:24px;cursor:pointer;color:#999}
-.translator-close:hover{color:#333}
-.translator-textarea{width:100%;min-height:250px;padding:12px;border:2px solid #e0e0e0;border-radius:8px;font-size:14px;font-family:inherit;resize:vertical}
-.translator-textarea:focus{outline:none;border-color:#667eea;box-shadow:0 0 0 3px rgba(102,126,234,0.1)}
-.translator-hint{font-size:12px;color:#666;margin-top:10px}
-.popup{position:fixed;background:white;border:1px solid #e0e0e0;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.15);z-index:100000;min-width:250px;max-width:300px;animation:popupIn 0.2s ease-out}
-@keyframes popupIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
-.popup-header{display:flex;justify-content:space-between;align-items:center;padding:12px;border-bottom:1px solid #e0e0e0}
-.popup-header strong{font-size:14px;color:#333}
-.popup-close{background:none;border:none;font-size:20px;cursor:pointer;color:#999}
-.popup-close:hover{color:#333}
-.popup-translation{padding:12px;font-size:14px;color:#666;background:#f9f9f9}
-`;document.head.appendChild(style);const overlay=document.createElement('div');overlay.className='translator-overlay';const panel=document.createElement('div');panel.className='translator-panel';panel.innerHTML='<div class=\"translator-header\"><h2>📚 Übersetzer</h2><button class=\"translator-close\">×</button></div><textarea class=\"translator-textarea\" placeholder=\"Text eingeben oder aus Website kopieren...\"></textarea><div class=\"translator-hint\">💡 Doppelklick auf englische Wörter zum Übersetzen</div>';overlay.appendChild(panel);document.body.appendChild(overlay);const textarea=panel.querySelector('.translator-textarea');const closeBtn=panel.querySelector('.translator-close');closeBtn.onclick=()=>overlay.remove();overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove()});textarea.addEventListener('dblclick',async e=>{const sel=window.getSelection().toString().trim();if(!sel||sel.length<2)return;const word=sel.split(/\s+/)[0];const x=e.clientX;const y=e.clientY;try{const res=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(word)+'&langpair=en|de');const data=await res.json();const translation=data.responseData.translatedText;const popup=document.createElement('div');popup.className='popup';popup.innerHTML='<div class=\"popup-header\"><strong>'+word+'</strong><button class=\"popup-close\">×</button></div><div class=\"popup-translation\">'+translation+'</div>';document.body.appendChild(popup);let px=x,py=y+20;if(px+300>window.innerWidth)px=window.innerWidth-310;popup.style.left=px+'px';popup.style.top=py+'px';popup.querySelector('.popup-close').onclick=()=>popup.remove();setTimeout(()=>{if(document.body.contains(popup))popup.remove()},5000)}catch(err){alert('Fehler beim Übersetzen')}});textarea.focus()})();" class="bookmarklet-link">
-      📚 Englisch Übersetzer (Klick + Halten)
-    </a>
-
-    <h2>Oder manuell:</h2>
-    <p>Falls der Link nicht funktioniert, kopiere diesen Code:</p>
-    <div class="code">
-javascript:(function(){const style=document.createElement('style');style.textContent=`.translator-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:99999;display:flex;align-items:flex-end}.translator-panel{background:white;width:100%;max-width:500px;border-radius:12px 12px 0 0;padding:20px;box-shadow:0 -4px 20px rgba(0,0,0,0.2);max-height:80vh;overflow-y:auto}.translator-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;border-bottom:2px solid #667eea;padding-bottom:10px}.translator-header h2{margin:0;color:#333;font-size:18px}.translator-close{background:none;border:none;font-size:24px;cursor:pointer;color:#999}.translator-close:hover{color:#333}.translator-textarea{width:100%;min-height:250px;padding:12px;border:2px solid #e0e0e0;border-radius:8px;font-size:14px;font-family:inherit;resize:vertical}.translator-textarea:focus{outline:none;border-color:#667eea;box-shadow:0 0 0 3px rgba(102,126,234,0.1)}.translator-hint{font-size:12px;color:#666;margin-top:10px}.popup{position:fixed;background:white;border:1px solid #e0e0e0;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.15);z-index:100000;min-width:250px;max-width:300px;animation:popupIn 0.2s ease-out}@keyframes popupIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}.popup-header{display:flex;justify-content:space-between;align-items:center;padding:12px;border-bottom:1px solid #e0e0e0}.popup-header strong{font-size:14px;color:#333}.popup-close{background:none;border:none;font-size:20px;cursor:pointer;color:#999}.popup-close:hover{color:#333}.popup-translation{padding:12px;font-size:14px;color:#666;background:#f9f9f9}`;document.head.appendChild(style);const overlay=document.createElement('div');overlay.className='translator-overlay';const panel=document.createElement('div');panel.className='translator-panel';panel.innerHTML='<div class="translator-header"><h2>📚 Übersetzer</h2><button class="translator-close">×</button></div><textarea class="translator-textarea" placeholder="Text eingeben oder aus Website kopieren..."></textarea><div class="translator-hint">💡 Doppelklick auf englische Wörter zum Übersetzen</div>';overlay.appendChild(panel);document.body.appendChild(overlay);const textarea=panel.querySelector('.translator-textarea');const closeBtn=panel.querySelector('.translator-close');closeBtn.onclick=()=>overlay.remove();overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove()});textarea.addEventListener('dblclick',async e=>{const sel=window.getSelection().toString().trim();if(!sel||sel.length<2)return;const word=sel.split(/\s+/)[0];const x=e.clientX;const y=e.clientY;try{const res=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(word)+'&langpair=en|de');const data=await res.json();const translation=data.responseData.translatedText;const popup=document.createElement('div');popup.className='popup';popup.innerHTML='<div class="popup-header"><strong>'+word+'</strong><button class="popup-close">×</button></div><div class="popup-translation">'+translation+'</div>';document.body.appendChild(popup);let px=x,py=y+20;if(px+300>window.innerWidth)px=window.innerWidth-310;popup.style.left=px+'px';popup.style.top=py+'px';popup.querySelector('.popup-close').onclick=()=>popup.remove();setTimeout(()=>{if(document.body.contains(popup))popup.remove()},5000)}catch(err){alert('Fehler beim Übersetzen')}});textarea.focus()})();
-    </div>
-
-    <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; color: #999; font-size: 13px;">
-      💡 <strong>Tipp:</strong> Speichere dieses Bookmarklet in deinen Favoriten. Dann kannst du es überall nutzen!
-    </p>
+<!-- Step 1: Copy code -->
+<div class="card">
+  <div class="card-title">Schritt 1 – Code kopieren</div>
+  <div class="code-area">
+    <div class="code-label">Tippe auf „Code kopieren“ – der Bookmarklet-Code wird in die Zwischenablage gelegt.</div>
+    <div class="code-box" id="codeBox">javascript:(function()%7Bif(window.__endeTrActive)%7Bwindow.__endeTrActive=false;var%20s=document.getElementById('__endeTrSt');if(s)s.remove();var%20p=document.getElementById('__endeTrPop');if(p)p.remove();document.removeEventListener('selectionchange',window.__endeTrSelH);document.removeEventListener('dblclick',window.__endeTrDblH);delete%20window.__endeTrActive;delete%20window.__endeTrSelH;delete%20window.__endeTrDblH;var%20t=document.createElement('div');t.style.cssText='position:fixed;bottom:24px;left:50%25;transform:translateX(-50%25);background:#764ba2;color:#fff;padding:10px%2022px;border-radius:20px;z-index:2147483647;font-family:sans-serif;font-size:14px;white-space:nowrap;box-shadow:0%204px%2016px%20rgba(0,0,0,.3)';t.textContent='EN%E2%86%92DE%20deaktiviert';document.body.appendChild(t);setTimeout(function()%7Bt.remove();%7D,2000);return;%7Dwindow.__endeTrActive=true;var%20st=document.createElement('style');st.id='__endeTrSt';st.textContent='#__endeTrPop%7Bposition:absolute;z-index:2147483647;min-width:220px;max-width:320px;background:#fff;color:#1a1a1a;border:1px%20solid%20rgba(0,0,0,.12);border-radius:12px;box-shadow:0%208px%2028px%20rgba(0,0,0,.22);font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:15px;line-height:1.45;overflow:hidden;animation:__etIn%20120ms%20ease-out%7D@keyframes%20__etIn%7Bfrom%7Bopacity:0;transform:translateY(-4px)%7Dto%7Bopacity:1;transform:translateY(0)%7D%7D#__endeTrPop%20.__etH%7Bdisplay:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px%2012px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff%7D#__endeTrPop%20.__etT%7Bfont-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1%7D#__endeTrPop%20.__etC%7Bbackground:rgba(255,255,255,.18);color:#fff;border:none;width:26px;height:26px;border-radius:50%25;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0%7D#__endeTrPop%20.__etC:active%7Bbackground:rgba(255,255,255,.35)%7D#__endeTrPop%20.__etB%7Bpadding:12px%2014px;font-size:15px;white-space:pre-wrap;word-wrap:break-word%7D#__endeTrPop%5Bdata-state=error%5D%20.__etB%7Bcolor:#b00020%7D.__etSpin%7Bdisplay:inline-block;width:12px;height:12px;border:2px%20solid%20rgba(0,0,0,.18);border-top-color:#667eea;border-radius:50%25;vertical-align:-2px;margin-right:6px;animation:__etSpinA%20.7s%20linear%20infinite%7D@keyframes%20__etSpinA%7Bto%7Btransform:rotate(360deg)%7D%7D';document.head.appendChild(st);var%20toast=document.createElement('div');toast.style.cssText='position:fixed;bottom:24px;left:50%25;transform:translateX(-50%25);background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:10px%2022px;border-radius:20px;z-index:2147483647;font-family:sans-serif;font-size:14px;white-space:nowrap;box-shadow:0%204px%2016px%20rgba(0,0,0,.3)';toast.textContent='EN%E2%86%92DE%20aktiv%20%E2%80%93%20Doppeltippe%20auf%20ein%20Wort';document.body.appendChild(toast);setTimeout(function()%7Btoast.remove();%7D,2500);var%20cache=new%20Map();function%20cGet(k)%7Bif(!cache.has(k))return%20null;var%20v=cache.get(k);cache.delete(k);cache.set(k,v);return%20v;%7Dfunction%20cSet(k,v)%7Bcache.set(k,v);if(cache.size%3E300)cache.delete(cache.keys().next().value);%7Dfunction%20translate(text)%7Bvar%20k='en%7Cde%7C'+text,hit=cGet(k);if(hit)return%20Promise.resolve(hit);var%20url='https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=de&dt=t&q='+encodeURIComponent(text);return%20fetch(url,%7Bheaders:%7BAccept:'application/json'%7D%7D).then(function(r)%7Bif(!r.ok)throw%20new%20Error('HTTP%20'+r.status);return%20r.json();%7D).then(function(d)%7Bvar%20s=Array.isArray(d&&d%5B0%5D)?d%5B0%5D:%5B%5D;var%20tr=s.map(function(x)%7Breturn%20Array.isArray(x)?x%5B0%5D:'';%7D).filter(Boolean).join('');if(!tr)throw%20new%20Error('Leere%20Antwort');cSet(k,tr);return%20tr;%7D);%7Dfunction%20insidePop(n)%7Bwhile(n)%7Bif(n.id==='__endeTrPop')return%20true;n=n.parentNode;%7Dreturn%20false;%7Dfunction%20selInfo()%7Bvar%20sel=window.getSelection();if(!sel%7C%7Csel.rangeCount===0%7C%7Csel.isCollapsed)return%20null;var%20text=sel.toString().trim();if(!text%7C%7Ctext.length%3E500)return%20null;var%20r=sel.getRangeAt(0);if(insidePop(r.startContainer))return%20null;var%20rect=r.getBoundingClientRect();if(!rect.width&&!rect.height)return%20null;if(!/%5BA-Za-z%5D/.test(text))return%20null;var%20lat=(text.match(/%5BA-Za-z%5Cs.,!?;:'%22%5C%5C-%5D/g)%7C%7C%5B%5D).length;if(lat/text.length%3C0.6)return%20null;return%7Btext:text,rect:rect%7D;%7Dfunction%20remPop()%7Bvar%20p=document.getElementById('__endeTrPop');if(p)p.remove();%7Dfunction%20posPop(pop,rect)%7Bvar%20m=8,vw=window.innerWidth,vh=window.innerHeight;var%20pw=Math.min(pop.offsetWidth%7C%7C280,vw-2*m),ph=pop.offsetHeight%7C%7C80;var%20left=rect.left+(rect.width/2)-(pw/2);left=Math.max(m,Math.min(left,vw-pw-m));var%20top=rect.bottom+8;if(top+ph%3Evh-m)%7Btop=rect.top-ph-8;if(top%3Cm)top=vh-ph-m;%7Dpop.style.left=(left+window.scrollX)+'px';pop.style.top=(top+window.scrollY)+'px';pop.style.maxWidth=(vw-2*m)+'px';%7Dfunction%20showPop(orig,rect,state,trans)%7BremPop();var%20pop=document.createElement('div');pop.id='__endeTrPop';pop.setAttribute('data-state',state);var%20hdr=document.createElement('div');hdr.className='__etH';var%20tit=document.createElement('span');tit.className='__etT';tit.textContent=orig.length%3E60?orig.slice(0,57)+'%E2%80%A6':orig;var%20cls=document.createElement('button');cls.className='__etC';cls.textContent='%C3%97';cls.setAttribute('aria-label','Schlie%C3%9Fen');cls.addEventListener('click',function(e)%7Be.stopPropagation();remPop();%7D);hdr.appendChild(tit);hdr.appendChild(cls);var%20body=document.createElement('div');body.className='__etB';if(state==='loading')%7Bbody.innerHTML='%3Cspan%20class=%22__etSpin%22%3E%3C/span%3E%C3%9Cbersetze%E2%80%A6';%7Delse%7Bbody.textContent=trans%7C%7C'Fehler.';%7Dpop.appendChild(hdr);pop.appendChild(body);pop.addEventListener('mousedown',function(e)%7Be.stopPropagation();%7D);pop.addEventListener('touchstart',function(e)%7Be.stopPropagation();%7D,%7Bpassive:true%7D);document.body.appendChild(pop);posPop(pop,rect);%7Dvar%20lastT='',timer=null,reqId=0;function%20handleSel()%7Bvar%20info=selInfo();if(!info)return;if(info.text===lastT&&document.getElementById('__endeTrPop'))return;lastT=info.text;var%20rid=++reqId;showPop(info.text,info.rect,'loading');translate(info.text).then(function(tr)%7Bif(rid!==reqId)return;showPop(info.text,info.rect,'ok',tr);%7D).catch(function(e)%7Bif(rid!==reqId)return;showPop(info.text,info.rect,'error',String(e&&e.message%7C%7Ce));%7D);%7Dwindow.__endeTrSelH=function()%7BclearTimeout(timer);timer=setTimeout(handleSel,450);%7D;window.__endeTrDblH=function()%7BclearTimeout(timer);timer=setTimeout(handleSel,50);%7D;document.addEventListener('selectionchange',window.__endeTrSelH);document.addEventListener('dblclick',window.__endeTrDblH);document.addEventListener('mousedown',function(e)%7Bvar%20p=document.getElementById('__endeTrPop');if(p&&!p.contains(e.target))%7BsetTimeout(function()%7Bvar%20s=window.getSelection();if(!s%7C%7Cs.isCollapsed)%7BremPop();lastT='';%7D%7D,250);%7D%7D);%7D)();</div>
+    <button class="copy-btn" onclick="copyCode()">Code kopieren</button>
   </div>
+</div>
+
+<!-- Step 2: Bookmark this page -->
+<div class="card">
+  <div class="card-title">Schritt 2 – Diese Seite als Lesezeichen speichern</div>
+
+  <div class="step">
+    <div class="step-num">1</div>
+    <div class="step-text">
+      Tippe unten in Safari auf das <strong>Teilen-Symbol</strong>
+      <span class="badge">&#x2610; Teilen</span>
+      <span class="sub">Das ist der Kasten mit dem Pfeil nach oben in der unteren Leiste.</span>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">2</div>
+    <div class="step-text">
+      Wähle <strong>„Lesezeichen hinzufügen“</strong>
+      <span class="sub">Scrolle im Teilen-Menü nach unten, falls du es nicht sofort siehst.</span>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">3</div>
+    <div class="step-text">
+      Gib als Name <strong>„EN→DE“</strong> ein und tippe <strong>Sichern</strong>.
+    </div>
+  </div>
+</div>
+
+<!-- Step 3: Edit bookmark URL -->
+<div class="card">
+  <div class="card-title">Schritt 3 – Lesezeichen bearbeiten</div>
+
+  <div class="step">
+    <div class="step-num">4</div>
+    <div class="step-text">
+      Tippe auf das <strong>Buch-Symbol</strong>
+      <span class="badge">&#x1F4D6;</span>
+      in der Safari-Leiste unten → <strong>Lesezeichen</strong>.
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">5</div>
+    <div class="step-text">
+      Suche das Lesezeichen <strong>„EN→DE“</strong>, das du gerade gespeichert hast.
+      <span class="sub">Tippe und halte es kurz gedrückt → <strong>„Bearbeiten“</strong>.</span>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">6</div>
+    <div class="step-text">
+      Im URL-Feld: alles <strong>löschen</strong>, dann den kopierten Code <strong>einfügen</strong>
+      <span class="sub">Tippe in das URL-Feld → „Alles auswählen“ → „Einsetzen“.</span>
+    </div>
+  </div>
+
+  <div class="step">
+    <div class="step-num">7</div>
+    <div class="step-text">
+      Tippe <strong>Fertig</strong> – das Lesezeichen ist jetzt installiert!
+    </div>
+  </div>
+</div>
+
+<!-- Step 4: Use it -->
+<div class="card">
+  <div class="card-title">Schritt 4 – Benutzen</div>
+  <div class="demo">
+    <strong>Einmalig pro Seite aktivieren:</strong><br>
+    Auf einer englischen Webseite das Lesezeichen-Symbol tippen → <strong>„EN→DE“</strong> wählen.<br><br>
+    <strong>Dann:</strong><br>
+    • <strong>Doppeltippe</strong> auf ein Wort → Übersetzung erscheint.<br>
+    • Wort doppeltippen, dann <strong>Auswahl-Griffe ziehen</strong> → ganzen Satz übersetzen.<br>
+    • Popup tippt sich weg oder hat ein ×-Schließen-Knöpfchen.<br><br>
+    <strong>Nochmal tippen deaktiviert</strong> den Übersetzer wieder.
+  </div>
+</div>
+
+<div class="tip">
+  <strong>Tipp:</strong> Speichere das Lesezeichen in <strong>Favoriten</strong>, dann erscheint es direkt im Lesezeichen-Menü ohne Suche.
+</div>
+
+<div id="toast">Kopiert!</div>
+
+<script>
+  const BM = "javascript:(function()%7Bif(window.__endeTrActive)%7Bwindow.__endeTrActive=false;var%20s=document.getElementById('__endeTrSt');if(s)s.remove();var%20p=document.getElementById('__endeTrPop');if(p)p.remove();document.removeEventListener('selectionchange',window.__endeTrSelH);document.removeEventListener('dblclick',window.__endeTrDblH);delete%20window.__endeTrActive;delete%20window.__endeTrSelH;delete%20window.__endeTrDblH;var%20t=document.createElement('div');t.style.cssText='position:fixed;bottom:24px;left:50%25;transform:translateX(-50%25);background:#764ba2;color:#fff;padding:10px%2022px;border-radius:20px;z-index:2147483647;font-family:sans-serif;font-size:14px;white-space:nowrap;box-shadow:0%204px%2016px%20rgba(0,0,0,.3)';t.textContent='EN%E2%86%92DE%20deaktiviert';document.body.appendChild(t);setTimeout(function()%7Bt.remove();%7D,2000);return;%7Dwindow.__endeTrActive=true;var%20st=document.createElement('style');st.id='__endeTrSt';st.textContent='#__endeTrPop%7Bposition:absolute;z-index:2147483647;min-width:220px;max-width:320px;background:#fff;color:#1a1a1a;border:1px%20solid%20rgba(0,0,0,.12);border-radius:12px;box-shadow:0%208px%2028px%20rgba(0,0,0,.22);font-family:-apple-system,BlinkMacSystemFont,sans-serif;font-size:15px;line-height:1.45;overflow:hidden;animation:__etIn%20120ms%20ease-out%7D@keyframes%20__etIn%7Bfrom%7Bopacity:0;transform:translateY(-4px)%7Dto%7Bopacity:1;transform:translateY(0)%7D%7D#__endeTrPop%20.__etH%7Bdisplay:flex;align-items:center;justify-content:space-between;gap:8px;padding:10px%2012px;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff%7D#__endeTrPop%20.__etT%7Bfont-weight:600;font-size:14px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1%7D#__endeTrPop%20.__etC%7Bbackground:rgba(255,255,255,.18);color:#fff;border:none;width:26px;height:26px;border-radius:50%25;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0%7D#__endeTrPop%20.__etC:active%7Bbackground:rgba(255,255,255,.35)%7D#__endeTrPop%20.__etB%7Bpadding:12px%2014px;font-size:15px;white-space:pre-wrap;word-wrap:break-word%7D#__endeTrPop%5Bdata-state=error%5D%20.__etB%7Bcolor:#b00020%7D.__etSpin%7Bdisplay:inline-block;width:12px;height:12px;border:2px%20solid%20rgba(0,0,0,.18);border-top-color:#667eea;border-radius:50%25;vertical-align:-2px;margin-right:6px;animation:__etSpinA%20.7s%20linear%20infinite%7D@keyframes%20__etSpinA%7Bto%7Btransform:rotate(360deg)%7D%7D';document.head.appendChild(st);var%20toast=document.createElement('div');toast.style.cssText='position:fixed;bottom:24px;left:50%25;transform:translateX(-50%25);background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;padding:10px%2022px;border-radius:20px;z-index:2147483647;font-family:sans-serif;font-size:14px;white-space:nowrap;box-shadow:0%204px%2016px%20rgba(0,0,0,.3)';toast.textContent='EN%E2%86%92DE%20aktiv%20%E2%80%93%20Doppeltippe%20auf%20ein%20Wort';document.body.appendChild(toast);setTimeout(function()%7Btoast.remove();%7D,2500);var%20cache=new%20Map();function%20cGet(k)%7Bif(!cache.has(k))return%20null;var%20v=cache.get(k);cache.delete(k);cache.set(k,v);return%20v;%7Dfunction%20cSet(k,v)%7Bcache.set(k,v);if(cache.size%3E300)cache.delete(cache.keys().next().value);%7Dfunction%20translate(text)%7Bvar%20k='en%7Cde%7C'+text,hit=cGet(k);if(hit)return%20Promise.resolve(hit);var%20url='https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=de&dt=t&q='+encodeURIComponent(text);return%20fetch(url,%7Bheaders:%7BAccept:'application/json'%7D%7D).then(function(r)%7Bif(!r.ok)throw%20new%20Error('HTTP%20'+r.status);return%20r.json();%7D).then(function(d)%7Bvar%20s=Array.isArray(d&&d%5B0%5D)?d%5B0%5D:%5B%5D;var%20tr=s.map(function(x)%7Breturn%20Array.isArray(x)?x%5B0%5D:'';%7D).filter(Boolean).join('');if(!tr)throw%20new%20Error('Leere%20Antwort');cSet(k,tr);return%20tr;%7D);%7Dfunction%20insidePop(n)%7Bwhile(n)%7Bif(n.id==='__endeTrPop')return%20true;n=n.parentNode;%7Dreturn%20false;%7Dfunction%20selInfo()%7Bvar%20sel=window.getSelection();if(!sel%7C%7Csel.rangeCount===0%7C%7Csel.isCollapsed)return%20null;var%20text=sel.toString().trim();if(!text%7C%7Ctext.length%3E500)return%20null;var%20r=sel.getRangeAt(0);if(insidePop(r.startContainer))return%20null;var%20rect=r.getBoundingClientRect();if(!rect.width&&!rect.height)return%20null;if(!/%5BA-Za-z%5D/.test(text))return%20null;var%20lat=(text.match(/%5BA-Za-z%5Cs.,!?;:'%22%5C%5C-%5D/g)%7C%7C%5B%5D).length;if(lat/text.length%3C0.6)return%20null;return%7Btext:text,rect:rect%7D;%7Dfunction%20remPop()%7Bvar%20p=document.getElementById('__endeTrPop');if(p)p.remove();%7Dfunction%20posPop(pop,rect)%7Bvar%20m=8,vw=window.innerWidth,vh=window.innerHeight;var%20pw=Math.min(pop.offsetWidth%7C%7C280,vw-2*m),ph=pop.offsetHeight%7C%7C80;var%20left=rect.left+(rect.width/2)-(pw/2);left=Math.max(m,Math.min(left,vw-pw-m));var%20top=rect.bottom+8;if(top+ph%3Evh-m)%7Btop=rect.top-ph-8;if(top%3Cm)top=vh-ph-m;%7Dpop.style.left=(left+window.scrollX)+'px';pop.style.top=(top+window.scrollY)+'px';pop.style.maxWidth=(vw-2*m)+'px';%7Dfunction%20showPop(orig,rect,state,trans)%7BremPop();var%20pop=document.createElement('div');pop.id='__endeTrPop';pop.setAttribute('data-state',state);var%20hdr=document.createElement('div');hdr.className='__etH';var%20tit=document.createElement('span');tit.className='__etT';tit.textContent=orig.length%3E60?orig.slice(0,57)+'%E2%80%A6':orig;var%20cls=document.createElement('button');cls.className='__etC';cls.textContent='%C3%97';cls.setAttribute('aria-label','Schlie%C3%9Fen');cls.addEventListener('click',function(e)%7Be.stopPropagation();remPop();%7D);hdr.appendChild(tit);hdr.appendChild(cls);var%20body=document.createElement('div');body.className='__etB';if(state==='loading')%7Bbody.innerHTML='%3Cspan%20class=%22__etSpin%22%3E%3C/span%3E%C3%9Cbersetze%E2%80%A6';%7Delse%7Bbody.textContent=trans%7C%7C'Fehler.';%7Dpop.appendChild(hdr);pop.appendChild(body);pop.addEventListener('mousedown',function(e)%7Be.stopPropagation();%7D);pop.addEventListener('touchstart',function(e)%7Be.stopPropagation();%7D,%7Bpassive:true%7D);document.body.appendChild(pop);posPop(pop,rect);%7Dvar%20lastT='',timer=null,reqId=0;function%20handleSel()%7Bvar%20info=selInfo();if(!info)return;if(info.text===lastT&&document.getElementById('__endeTrPop'))return;lastT=info.text;var%20rid=++reqId;showPop(info.text,info.rect,'loading');translate(info.text).then(function(tr)%7Bif(rid!==reqId)return;showPop(info.text,info.rect,'ok',tr);%7D).catch(function(e)%7Bif(rid!==reqId)return;showPop(info.text,info.rect,'error',String(e&&e.message%7C%7Ce));%7D);%7Dwindow.__endeTrSelH=function()%7BclearTimeout(timer);timer=setTimeout(handleSel,450);%7D;window.__endeTrDblH=function()%7BclearTimeout(timer);timer=setTimeout(handleSel,50);%7D;document.addEventListener('selectionchange',window.__endeTrSelH);document.addEventListener('dblclick',window.__endeTrDblH);document.addEventListener('mousedown',function(e)%7Bvar%20p=document.getElementById('__endeTrPop');if(p&&!p.contains(e.target))%7BsetTimeout(function()%7Bvar%20s=window.getSelection();if(!s%7C%7Cs.isCollapsed)%7BremPop();lastT='';%7D%7D,250);%7D%7D);%7D)();";
+
+  function copyCode() {
+    navigator.clipboard.writeText(BM).then(showToast).catch(function() {
+      // Fallback: select the text in the code box
+      var box = document.getElementById('codeBox');
+      var range = document.createRange();
+      range.selectNodeContents(box);
+      var sel = window.getSelection();
+      sel.removeAllRanges();
+      sel.addRange(range);
+      try { document.execCommand('copy'); showToast(); } catch(e) {}
+    });
+  }
+
+  function showToast() {
+    var t = document.getElementById('toast');
+    t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 2200);
+  }
+
+  // Also copy on tap of the code box itself
+  document.getElementById('codeBox').addEventListener('click', copyCode);
+</script>
 </body>
 </html>
