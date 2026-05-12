@@ -13,7 +13,6 @@
     header p { font-size: 14px; opacity: 0.9; }
     .card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
     textarea { width: 100%; min-height: 300px; padding: 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; font-family: inherit; resize: vertical; }
-    textarea:focus { outline: none; border-color: #667eea; }
     .url-row { display: flex; gap: 8px; margin-bottom: 16px; }
     .url-row input { flex: 1; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; font-family: inherit; }
     .url-row input:focus { outline: none; border-color: #667eea; }
@@ -54,24 +53,37 @@
       if (!url) return;
       loadBtn.disabled = true;
       loadBtn.textContent = 'Lädt...';
-      try {
-        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
-        const response = await fetch(proxyUrl);
-        const data = await response.json();
-        const parser = new DOMParser();
-        const doc = parser.parseFromString(data.contents, 'text/html');
-        ['script','style','nav','header','footer','aside'].forEach(tag => {
-          doc.querySelectorAll(tag).forEach(el => el.remove());
-        });
-        const text = (doc.body?.innerText || doc.body?.textContent || '').replace(/\n{3,}/g, '\n\n').trim();
-        textArea.value = text;
-        showMessage('✅ Website geladen!');
-      } catch (err) {
-        showMessage('❌ Fehler beim Laden der Website');
-      } finally {
-        loadBtn.disabled = false;
-        loadBtn.textContent = 'Laden';
+
+      const proxies = [
+        `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+        `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+      ];
+
+      let loaded = false;
+      for (const proxyUrl of proxies) {
+        try {
+          const response = await fetch(proxyUrl);
+          if (!response.ok) continue;
+          const data = await response.json();
+          const html = data.contents || data;
+          if (!html) continue;
+          const parser = new DOMParser();
+          const doc = parser.parseFromString(html, 'text/html');
+          ['script','style','nav','header','footer','aside'].forEach(tag => {
+            doc.querySelectorAll(tag).forEach(el => el.remove());
+          });
+          const text = (doc.body?.innerText || doc.body?.textContent || '').replace(/\n{3,}/g, '\n\n').trim();
+          if (!text) continue;
+          textArea.value = text;
+          showMessage('✅ Website geladen!');
+          loaded = true;
+          break;
+        } catch (err) { continue; }
       }
+
+      if (!loaded) showMessage('❌ Diese Website blockiert das Laden. Bitte Text manuell kopieren.');
+      loadBtn.disabled = false;
+      loadBtn.textContent = 'Laden';
     });
 
     urlInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') loadBtn.click(); });
@@ -110,7 +122,7 @@
       msg.className = 'message';
       msg.textContent = text;
       document.body.appendChild(msg);
-      setTimeout(() => msg.remove(), 2000);
+      setTimeout(() => msg.remove(), 3000);
     }
   </script>
 </body>
