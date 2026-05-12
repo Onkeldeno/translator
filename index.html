@@ -5,173 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Englisch Übersetzer</title>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      min-height: 100vh;
-      padding: 20px;
-    }
-
-    .container {
-      max-width: 600px;
-      margin: 0 auto;
-    }
-
-    header {
-      text-align: center;
-      color: white;
-      margin-bottom: 30px;
-      margin-top: 20px;
-    }
-
-    header h1 {
-      font-size: 28px;
-      margin-bottom: 8px;
-    }
-
-    header p {
-      font-size: 14px;
-      opacity: 0.9;
-    }
-
-    .card {
-      background: white;
-      border-radius: 12px;
-      padding: 25px;
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-    }
-
-    textarea {
-      width: 100%;
-      min-height: 300px;
-      padding: 15px;
-      border: 2px solid #e0e0e0;
-      border-radius: 8px;
-      font-size: 16px;
-      font-family: inherit;
-      resize: vertical;
-      transition: border-color 0.2s;
-    }
-
-    textarea:focus {
-      outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-
-    .hint {
-      margin-top: 12px;
-      font-size: 13px;
-      color: #666;
-      text-align: center;
-    }
-
-    /* Translation Popup */
-    .popup {
-      position: fixed;
-      background: white;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-      z-index: 9999;
-      min-width: 250px;
-      max-width: 300px;
-      padding: 0;
-      animation: popupIn 0.2s ease-out;
-    }
-
-    @keyframes popupIn {
-      from {
-        opacity: 0;
-        transform: scale(0.9);
-      }
-      to {
-        opacity: 1;
-        transform: scale(1);
-      }
-    }
-
-    .popup-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 12px;
-      border-bottom: 1px solid #e0e0e0;
-    }
-
-    .popup-header strong {
-      font-size: 14px;
-      color: #333;
-      word-break: break-word;
-    }
-
-    .close-btn {
-      background: none;
-      border: none;
-      font-size: 20px;
-      cursor: pointer;
-      color: #999;
-      padding: 0;
-      width: 24px;
-      height: 24px;
-    }
-
-    .close-btn:hover {
-      color: #333;
-    }
-
-    .popup-translation {
-      padding: 12px;
-      font-size: 14px;
-      color: #666;
-      background: #f9f9f9;
-      line-height: 1.5;
-    }
-
-    .message {
-      position: fixed;
-      bottom: 20px;
-      left: 20px;
-      right: 20px;
-      background: #4CAF50;
-      color: white;
-      padding: 12px;
-      border-radius: 6px;
-      text-align: center;
-      animation: slideUp 0.3s ease-out;
-      z-index: 10000;
-    }
-
-    @keyframes slideUp {
-      from {
-        opacity: 0;
-        transform: translateY(20px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    @media (max-width: 480px) {
-      header h1 {
-        font-size: 24px;
-      }
-
-      .card {
-        padding: 20px;
-      }
-
-      textarea {
-        min-height: 250px;
-      }
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; padding: 20px; }
+    .container { max-width: 600px; margin: 0 auto; }
+    header { text-align: center; color: white; margin-bottom: 30px; margin-top: 20px; }
+    header h1 { font-size: 28px; margin-bottom: 8px; }
+    header p { font-size: 14px; opacity: 0.9; }
+    .card { background: white; border-radius: 12px; padding: 25px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); }
+    textarea { width: 100%; min-height: 300px; padding: 15px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 16px; font-family: inherit; resize: vertical; }
+    textarea:focus { outline: none; border-color: #667eea; }
+    .url-row { display: flex; gap: 8px; margin-bottom: 16px; }
+    .url-row input { flex: 1; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; font-family: inherit; }
+    .url-row input:focus { outline: none; border-color: #667eea; }
+    .load-btn { background: #667eea; color: white; border: none; border-radius: 8px; padding: 12px 18px; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+    .load-btn:hover { background: #764ba2; }
+    .load-btn:disabled { background: #bbb; cursor: not-allowed; }
+    .hint { margin-top: 12px; font-size: 13px; color: #666; text-align: center; }
+    .popup { position: fixed; background: white; border: 1px solid #e0e0e0; border-radius: 8px; box-shadow: 0 4px 16px rgba(0,0,0,0.15); z-index: 9999; min-width: 250px; max-width: 300px; }
+    .popup-header { display: flex; justify-content: space-between; align-items: center; padding: 12px; border-bottom: 1px solid #e0e0e0; }
+    .popup-header strong { font-size: 14px; color: #333; }
+    .close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: #999; }
+    .popup-translation { padding: 12px; font-size: 14px; color: #666; background: #f9f9f9; line-height: 1.5; }
+    .message { position: fixed; bottom: 20px; left: 20px; right: 20px; background: #4CAF50; color: white; padding: 12px; border-radius: 6px; text-align: center; z-index: 10000; }
   </style>
 </head>
 <body>
@@ -180,101 +35,74 @@
       <h1>📚 Englisch Übersetzer</h1>
       <p>Doppelklick auf ein englisches Wort zum Übersetzen</p>
     </header>
-
     <div class="card">
-      <textarea
-        id="textArea"
-        placeholder="Kopiere englischen Text hier rein oder tippe etwas ein..."
-      ></textarea>
+      <div class="url-row">
+        <input id="urlInput" type="url" placeholder="Website URL eingeben z.B. https://bbc.com/news/..." />
+        <button class="load-btn" id="loadBtn">Laden</button>
+      </div>
+      <textarea id="textArea" placeholder="Oder Text direkt hier reinkopieren..."></textarea>
       <div class="hint">💡 Doppelklick auf ein englisches Wort für die deutsche Übersetzung</div>
     </div>
   </div>
-
   <script>
     const textArea = document.getElementById('textArea');
+    const urlInput = document.getElementById('urlInput');
+    const loadBtn = document.getElementById('loadBtn');
+
+    loadBtn.addEventListener('click', async () => {
+      const url = urlInput.value.trim();
+      if (!url) return;
+      loadBtn.disabled = true;
+      loadBtn.textContent = 'Lädt...';
+      try {
+        const proxyUrl = `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`;
+        const response = await fetch(proxyUrl);
+        const data = await response.json();
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(data.contents, 'text/html');
+        ['script','style','nav','header','footer','aside'].forEach(tag => {
+          doc.querySelectorAll(tag).forEach(el => el.remove());
+        });
+        const text = (doc.body?.innerText || doc.body?.textContent || '').replace(/\n{3,}/g, '\n\n').trim();
+        textArea.value = text;
+        showMessage('✅ Website geladen!');
+      } catch (err) {
+        showMessage('❌ Fehler beim Laden der Website');
+      } finally {
+        loadBtn.disabled = false;
+        loadBtn.textContent = 'Laden';
+      }
+    });
+
+    urlInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') loadBtn.click(); });
 
     textArea.addEventListener('dblclick', (event) => {
       const selectedText = window.getSelection().toString().trim();
-
-      if (!selectedText || selectedText.length < 2) {
-        return;
-      }
-
+      if (!selectedText || selectedText.length < 2) return;
       const word = selectedText.split(/\s+/)[0];
-
-      const rect = event.target.getBoundingClientRect();
-      const x = event.clientX || rect.left;
-      const y = event.clientY || rect.top;
-
-      translateWord(word, x, y);
+      translateWord(word, event.clientX, event.clientY);
     });
 
     async function translateWord(word, x, y) {
       try {
-        const response = await fetch(
-          `https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=en|de`
-        );
+        const response = await fetch(`https://api.mymemory.translated.net/get?q=${encodeURIComponent(word)}&langpair=en|de`);
         const data = await response.json();
-        const translation = data.responseData.translatedText;
-
-        showPopup(word, translation, x, y);
-      } catch (error) {
-        showMessage('Fehler beim Übersetzen');
-      }
+        showPopup(word, data.responseData.translatedText, x, y);
+      } catch (error) { showMessage('Fehler beim Übersetzen'); }
     }
 
     function showPopup(word, translation, x, y) {
-      // Entferne altes Popup
-      const oldPopup = document.querySelector('.popup');
-      if (oldPopup) {
-        oldPopup.remove();
-      }
-
-      // Erstelle neues Popup
+      document.querySelector('.popup')?.remove();
       const popup = document.createElement('div');
       popup.className = 'popup';
-      popup.innerHTML = `
-        <div class="popup-header">
-          <strong>${word}</strong>
-          <button class="close-btn">×</button>
-        </div>
-        <div class="popup-translation">${translation}</div>
-      `;
-
+      popup.innerHTML = `<div class="popup-header"><strong>${word}</strong><button class="close-btn">×</button></div><div class="popup-translation">${translation}</div>`;
       document.body.appendChild(popup);
-
-      // Position berechnen
-      let popupX = x;
-      let popupY = y + 20;
-
-      if (popupX + 300 > window.innerWidth) {
-        popupX = window.innerWidth - 310;
-      }
-      if (popupX < 10) {
-        popupX = 10;
-      }
-
-      popup.style.left = popupX + 'px';
-      popup.style.top = popupY + 'px';
-
-      // Close Button
-      popup.querySelector('.close-btn').addEventListener('click', () => {
-        popup.remove();
-      });
-
-      // Auto-close nach 5 Sekunden
-      setTimeout(() => {
-        if (document.body.contains(popup)) {
-          popup.remove();
-        }
-      }, 5000);
-
-      // Close beim Klick außerhalb
-      document.addEventListener('click', (e) => {
-        if (!popup.contains(e.target) && document.body.contains(popup)) {
-          popup.remove();
-        }
-      }, { once: true });
+      let px = Math.min(x, window.innerWidth - 310);
+      popup.style.left = Math.max(px, 10) + 'px';
+      popup.style.top = (y + 20) + 'px';
+      popup.querySelector('.close-btn').addEventListener('click', () => popup.remove());
+      setTimeout(() => popup.remove(), 5000);
+      document.addEventListener('click', (e) => { if (!popup.contains(e.target)) popup.remove(); }, { once: true });
     }
 
     function showMessage(text) {
@@ -282,7 +110,6 @@
       msg.className = 'message';
       msg.textContent = text;
       document.body.appendChild(msg);
-
       setTimeout(() => msg.remove(), 2000);
     }
   </script>
