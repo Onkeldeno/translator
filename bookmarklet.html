@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <title>Bookmarklet Installation</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      max-width: 600px;
+      margin: 50px auto;
+      padding: 20px;
+      background: #f5f5f5;
+    }
+    .card {
+      background: white;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    }
+    h1 {
+      color: #333;
+      margin-bottom: 10px;
+    }
+    p {
+      color: #666;
+      line-height: 1.6;
+      margin: 15px 0;
+    }
+    .bookmarklet-link {
+      display: inline-block;
+      background: #667eea;
+      color: white;
+      padding: 12px 24px;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: 600;
+      margin: 20px 0;
+      transition: background 0.2s;
+    }
+    .bookmarklet-link:hover {
+      background: #764ba2;
+    }
+    .code {
+      background: #f9f9f9;
+      border: 1px solid #ddd;
+      padding: 15px;
+      border-radius: 6px;
+      font-family: monospace;
+      font-size: 12px;
+      overflow-x: auto;
+      word-break: break-all;
+    }
+    .steps {
+      background: #e8f5e9;
+      padding: 20px;
+      border-radius: 6px;
+      margin: 20px 0;
+    }
+    .steps ol {
+      margin: 10px 0;
+      padding-left: 20px;
+    }
+    .steps li {
+      margin: 8px 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>📚 Englisch Übersetzer Bookmarklet</h1>
+    <p>Nutze dieses Bookmarklet auf jeder Website, um englische Wörter zu übersetzen!</p>
+
+    <h2>Installation:</h2>
+    <div class="steps">
+      <ol>
+        <li><strong>Klick und halte</strong> den Button unten gedrückt (nicht loslassen!)</li>
+        <li><strong>Wähle "Lesezeichen hinzufügen"</strong> oder "Add Bookmark"</li>
+        <li><strong>Name:</strong> "📚 Englisch Übersetzer"</li>
+        <li><strong>Speichern/Done</strong></li>
+      </ol>
+    </div>
+
+    <a href="javascript:(function(){const style=document.createElement('style');style.textContent=`
+.translator-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:99999;display:flex;align-items:flex-end}
+.translator-panel{background:white;width:100%;max-width:500px;border-radius:12px 12px 0 0;padding:20px;box-shadow:0 -4px 20px rgba(0,0,0,0.2);max-height:80vh;overflow-y:auto}
+.translator-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;border-bottom:2px solid #667eea;padding-bottom:10px}
+.translator-header h2{margin:0;color:#333;font-size:18px}
+.translator-close{background:none;border:none;font-size:24px;cursor:pointer;color:#999}
+.translator-close:hover{color:#333}
+.translator-textarea{width:100%;min-height:250px;padding:12px;border:2px solid #e0e0e0;border-radius:8px;font-size:14px;font-family:inherit;resize:vertical}
+.translator-textarea:focus{outline:none;border-color:#667eea;box-shadow:0 0 0 3px rgba(102,126,234,0.1)}
+.translator-hint{font-size:12px;color:#666;margin-top:10px}
+.popup{position:fixed;background:white;border:1px solid #e0e0e0;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.15);z-index:100000;min-width:250px;max-width:300px;animation:popupIn 0.2s ease-out}
+@keyframes popupIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}
+.popup-header{display:flex;justify-content:space-between;align-items:center;padding:12px;border-bottom:1px solid #e0e0e0}
+.popup-header strong{font-size:14px;color:#333}
+.popup-close{background:none;border:none;font-size:20px;cursor:pointer;color:#999}
+.popup-close:hover{color:#333}
+.popup-translation{padding:12px;font-size:14px;color:#666;background:#f9f9f9}
+`;document.head.appendChild(style);const overlay=document.createElement('div');overlay.className='translator-overlay';const panel=document.createElement('div');panel.className='translator-panel';panel.innerHTML='<div class=\"translator-header\"><h2>📚 Übersetzer</h2><button class=\"translator-close\">×</button></div><textarea class=\"translator-textarea\" placeholder=\"Text eingeben oder aus Website kopieren...\"></textarea><div class=\"translator-hint\">💡 Doppelklick auf englische Wörter zum Übersetzen</div>';overlay.appendChild(panel);document.body.appendChild(overlay);const textarea=panel.querySelector('.translator-textarea');const closeBtn=panel.querySelector('.translator-close');closeBtn.onclick=()=>overlay.remove();overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove()});textarea.addEventListener('dblclick',async e=>{const sel=window.getSelection().toString().trim();if(!sel||sel.length<2)return;const word=sel.split(/\s+/)[0];const x=e.clientX;const y=e.clientY;try{const res=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(word)+'&langpair=en|de');const data=await res.json();const translation=data.responseData.translatedText;const popup=document.createElement('div');popup.className='popup';popup.innerHTML='<div class=\"popup-header\"><strong>'+word+'</strong><button class=\"popup-close\">×</button></div><div class=\"popup-translation\">'+translation+'</div>';document.body.appendChild(popup);let px=x,py=y+20;if(px+300>window.innerWidth)px=window.innerWidth-310;popup.style.left=px+'px';popup.style.top=py+'px';popup.querySelector('.popup-close').onclick=()=>popup.remove();setTimeout(()=>{if(document.body.contains(popup))popup.remove()},5000)}catch(err){alert('Fehler beim Übersetzen')}});textarea.focus()})();" class="bookmarklet-link">
+      📚 Englisch Übersetzer (Klick + Halten)
+    </a>
+
+    <h2>Oder manuell:</h2>
+    <p>Falls der Link nicht funktioniert, kopiere diesen Code:</p>
+    <div class="code">
+javascript:(function(){const style=document.createElement('style');style.textContent=`.translator-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.5);z-index:99999;display:flex;align-items:flex-end}.translator-panel{background:white;width:100%;max-width:500px;border-radius:12px 12px 0 0;padding:20px;box-shadow:0 -4px 20px rgba(0,0,0,0.2);max-height:80vh;overflow-y:auto}.translator-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;border-bottom:2px solid #667eea;padding-bottom:10px}.translator-header h2{margin:0;color:#333;font-size:18px}.translator-close{background:none;border:none;font-size:24px;cursor:pointer;color:#999}.translator-close:hover{color:#333}.translator-textarea{width:100%;min-height:250px;padding:12px;border:2px solid #e0e0e0;border-radius:8px;font-size:14px;font-family:inherit;resize:vertical}.translator-textarea:focus{outline:none;border-color:#667eea;box-shadow:0 0 0 3px rgba(102,126,234,0.1)}.translator-hint{font-size:12px;color:#666;margin-top:10px}.popup{position:fixed;background:white;border:1px solid #e0e0e0;border-radius:8px;box-shadow:0 4px 16px rgba(0,0,0,0.15);z-index:100000;min-width:250px;max-width:300px;animation:popupIn 0.2s ease-out}@keyframes popupIn{from{opacity:0;transform:scale(0.9)}to{opacity:1;transform:scale(1)}}.popup-header{display:flex;justify-content:space-between;align-items:center;padding:12px;border-bottom:1px solid #e0e0e0}.popup-header strong{font-size:14px;color:#333}.popup-close{background:none;border:none;font-size:20px;cursor:pointer;color:#999}.popup-close:hover{color:#333}.popup-translation{padding:12px;font-size:14px;color:#666;background:#f9f9f9}`;document.head.appendChild(style);const overlay=document.createElement('div');overlay.className='translator-overlay';const panel=document.createElement('div');panel.className='translator-panel';panel.innerHTML='<div class="translator-header"><h2>📚 Übersetzer</h2><button class="translator-close">×</button></div><textarea class="translator-textarea" placeholder="Text eingeben oder aus Website kopieren..."></textarea><div class="translator-hint">💡 Doppelklick auf englische Wörter zum Übersetzen</div>';overlay.appendChild(panel);document.body.appendChild(overlay);const textarea=panel.querySelector('.translator-textarea');const closeBtn=panel.querySelector('.translator-close');closeBtn.onclick=()=>overlay.remove();overlay.addEventListener('click',e=>{if(e.target===overlay)overlay.remove()});textarea.addEventListener('dblclick',async e=>{const sel=window.getSelection().toString().trim();if(!sel||sel.length<2)return;const word=sel.split(/\s+/)[0];const x=e.clientX;const y=e.clientY;try{const res=await fetch('https://api.mymemory.translated.net/get?q='+encodeURIComponent(word)+'&langpair=en|de');const data=await res.json();const translation=data.responseData.translatedText;const popup=document.createElement('div');popup.className='popup';popup.innerHTML='<div class="popup-header"><strong>'+word+'</strong><button class="popup-close">×</button></div><div class="popup-translation">'+translation+'</div>';document.body.appendChild(popup);let px=x,py=y+20;if(px+300>window.innerWidth)px=window.innerWidth-310;popup.style.left=px+'px';popup.style.top=py+'px';popup.querySelector('.popup-close').onclick=()=>popup.remove();setTimeout(()=>{if(document.body.contains(popup))popup.remove()},5000)}catch(err){alert('Fehler beim Übersetzen')}});textarea.focus()})();
+    </div>
+
+    <p style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #ddd; color: #999; font-size: 13px;">
+      💡 <strong>Tipp:</strong> Speichere dieses Bookmarklet in deinen Favoriten. Dann kannst du es überall nutzen!
+    </p>
+  </div>
+</body>
+</html>
