@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EN→DE Wörterbuch</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #f2f2f7;
+      color: #1c1c1e;
+      min-height: 100vh;
+      padding-bottom: 40px;
+    }
+
+    .hero {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 28px 20px 20px;
+      text-align: center;
+    }
+    .hero h1 { font-size: 22px; font-weight: 700; margin-bottom: 4px; }
+    .hero p  { font-size: 14px; opacity: 0.85; }
+
+    /* Tab bar */
+    .tab-bar {
+      display: flex;
+      background: white;
+      border-bottom: 1px solid #e5e5ea;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .tab-btn {
+      flex: 1;
+      padding: 13px 8px;
+      border: none;
+      background: transparent;
+      font-size: 14px;
+      font-weight: 600;
+      color: #999;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+      transition: color .15s;
+    }
+    .tab-btn.active { color: #667eea; border-bottom-color: #667eea; }
+
+    /* Panels */
+    .panel { display: none; }
+    .panel.active { display: block; }
+
+    /* Cards */
+    .card {
+      background: white;
+      border-radius: 16px;
+      margin: 16px 16px 0;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,.07);
+    }
+    .card-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #6e6e73;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      padding: 14px 16px 6px;
+    }
+
+    /* Import area */
+    .import-area { padding: 12px 16px 16px; }
+    .import-area textarea {
+      width: 100%;
+      min-height: 90px;
+      border: 1.5px solid #e5e5ea;
+      border-radius: 10px;
+      padding: 10px 12px;
+      font-size: 14px;
+      font-family: inherit;
+      resize: vertical;
+      outline: none;
+      color: #1c1c1e;
+      background: #fafafa;
+    }
+    .import-area textarea:focus { border-color: #667eea; background: white; }
+    .import-hint {
+      font-size: 12px;
+      color: #aaa;
+      margin: 6px 0 10px;
+      line-height: 1.5;
+    }
+    .btn-primary {
+      width: 100%;
+      padding: 13px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: opacity .15s;
+    }
+    .btn-primary:active { opacity: .8; }
+
+    /* Stats row */
+    .stats-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      font-size: 14px;
+      color: #6e6e73;
+      border-bottom: 1px solid #f2f2f7;
+    }
+    .stats-count { font-weight: 600; color: #1c1c1e; }
+
+    /* Dictionary table */
+    .dict-table { width: 100%; }
+    .dict-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 14px;
+      border-bottom: 1px solid #f5f5f5;
+      font-size: 14px;
+    }
+    .dict-row:last-child { border-bottom: none; }
+    .dict-num { min-width: 24px; color: #c7c7cc; font-size: 12px; flex-shrink: 0; }
+    .dict-en  { flex: 1; font-weight: 500; color: #1c1c1e; word-break: break-word; }
+    .dict-de  { flex: 1; color: #555; word-break: break-word; }
+    .dict-date { font-size: 11px; color: #c7c7cc; flex-shrink: 0; white-space: nowrap; }
+    .dict-del {
+      background: none;
+      border: none;
+      color: #c7c7cc;
+      font-size: 18px;
+      cursor: pointer;
+      padding: 2px 4px;
+      flex-shrink: 0;
+      line-height: 1;
+    }
+    .dict-del:active { color: #d00; }
+
+    .dict-empty {
+      padding: 32px 16px;
+      text-align: center;
+      color: #c7c7cc;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    /* Table header */
+    .dict-header {
+      display: flex;
+      gap: 8px;
+      padding: 8px 14px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .4px;
+      color: #aaa;
+      border-bottom: 1px solid #f0f0f0;
+      background: #fafafa;
+    }
+    .dict-header .h-num { min-width: 24px; flex-shrink: 0; }
+    .dict-header .h-en  { flex: 1; }
+    .dict-header .h-de  { flex: 1; }
+    .dict-header .h-del { min-width: 50px; flex-shrink: 0; }
+
+    /* Actions */
+    .action-row {
+      display: flex;
+      gap: 10px;
+      padding: 12px 16px;
+      border-top: 1px solid #f2f2f7;
+    }
+    .btn-secondary {
+      flex: 1;
+      padding: 11px;
+      border: none;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      transition: opacity .15s;
+    }
+    .btn-secondary:active { opacity: .8; }
+    .btn-danger {
+      flex: 1;
+      padding: 11px;
+      border: none;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      background: #fff0f0;
+      color: #cc0000;
+      transition: background .15s;
+    }
+    .btn-danger:active { background: #ffd5d5; }
+
+    /* Flashcard panel */
+    #panel-flash { padding: 0; }
+
+    .flash-counter {
+      text-align: center;
+      padding: 14px 16px 0;
+      font-size: 13px;
+      color: #aaa;
+    }
+    .flash-card {
+      margin: 14px 16px 0;
+      background: white;
+      border-radius: 16px;
+      padding: 28px 20px 24px;
+      text-align: center;
+      box-shadow: 0 2px 12px rgba(0,0,0,.07);
+      min-height: 160px;
+    }
+    .flash-label {
+      font-size: 12px;
+      color: #aaa;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+      margin-bottom: 12px;
+    }
+    .flash-question {
+      font-size: 22px;
+      font-weight: 600;
+      color: #1c1c1e;
+      line-height: 1.35;
+      margin-bottom: 16px;
+    }
+    .flash-answer {
+      font-size: 20px;
+      font-weight: 500;
+      color: #667eea;
+      min-height: 30px;
+      margin-bottom: 4px;
+    }
+
+    .flash-btns {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin: 16px 16px 0;
+    }
+    .btn-reveal {
+      width: 100%;
+      padding: 14px;
+      border: none;
+      border-radius: 14px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+    }
+    .btn-reveal:active { opacity: .8; }
+    .flash-judge {
+      display: flex;
+      gap: 10px;
+    }
+    .btn-knew {
+      flex: 1;
+      padding: 13px;
+      border: none;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      background: #f0fff4;
+      color: #009900;
+    }
+    .btn-knew:active { background: #c3f0d0; }
+    .btn-forgot {
+      flex: 1;
+      padding: 13px;
+      border: none;
+      border-radius: 14px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      background: #fff0f0;
+      color: #cc0000;
+    }
+    .btn-forgot:active { background: #ffd5d5; }
+
+    .flash-result {
+      text-align: center;
+      padding: 32px 20px;
+    }
+    .flash-result .score {
+      font-size: 48px;
+      font-weight: 700;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 8px;
+    }
+    .flash-result .score-label {
+      font-size: 16px;
+      color: #6e6e73;
+      margin-bottom: 24px;
+    }
+
+    .flash-empty {
+      text-align: center;
+      padding: 48px 20px;
+      color: #c7c7cc;
+      font-size: 15px;
+      line-height: 1.6;
+    }
+
+    /* Toast */
+    #toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(80px);
+      background: #1c1c1e;
+      color: white;
+      padding: 11px 24px;
+      border-radius: 20px;
+      font-size: 15px;
+      font-weight: 500;
+      white-space: nowrap;
+      z-index: 9999;
+      transition: transform .25s ease, opacity .25s ease;
+      opacity: 0;
+      pointer-events: none;
+    }
+    #toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+
+<div class="hero">
+  <h1>📚 EN→DE Wörterbuch</h1>
+  <p>Deine gespeicherten Vokabeln und Sätze</p>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active" onclick="switchTab('dict')">Wörterbuch</button>
+  <button class="tab-btn" onclick="switchTab('flash')">Karteikarten</button>
+  <button class="tab-btn" onclick="switchTab('import')">Importieren</button>
+</div>
+
+<!-- ===== WÖRTERBUCH ===== -->
+<div id="panel-dict" class="panel active">
+  <div class="card" style="margin-top:16px">
+    <div class="stats-row">
+      <span>Gespeicherte Einträge</span>
+      <span class="stats-count" id="dictCount">0</span>
+    </div>
+    <div class="dict-header">
+      <span class="h-num">#</span>
+      <span class="h-en">Englisch</span>
+      <span class="h-de">Deutsch</span>
+      <span class="h-del"></span>
+    </div>
+    <div id="dictList" class="dict-table"></div>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <div class="action-row">
+      <button class="btn-secondary" onclick="exportDict()">⬆ Exportieren</button>
+      <button class="btn-danger" onclick="clearAll()">🗑 Alles löschen</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== KARTEIKARTEN ===== -->
+<div id="panel-flash" class="panel">
+  <div id="flashContent"></div>
+</div>
+
+<!-- ===== IMPORTIEREN ===== -->
+<div id="panel-import" class="panel">
+  <div class="card" style="margin-top:16px">
+    <div class="card-title">Aus Bookmarklet exportieren</div>
+    <div class="import-area">
+      <p class="import-hint">
+        Im Bookmarklet: <strong>📖 Wörterbuch</strong> öffnen → <strong>⬆ Exportieren</strong> tippen → Text kopieren → hier einfügen.
+      </p>
+      <textarea id="importText" placeholder="1. hello | Hallo&#10;2. world | Welt&#10;&#10;Oder einfach: hello | Hallo"></textarea>
+      <p class="import-hint">Format: <code>Englisch | Deutsch</code> (eine Zeile pro Eintrag, Nummerierung optional)</p>
+      <button class="btn-primary" onclick="importEntries()">Importieren</button>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:12px">
+    <div class="card-title">Eintrag manuell hinzufügen</div>
+    <div class="import-area">
+      <div style="display:flex;gap:8px;margin-bottom:10px">
+        <input id="manEn" type="text" placeholder="Englisch" style="flex:1;padding:10px 12px;border:1.5px solid #e5e5ea;border-radius:10px;font-size:14px;outline:none;font-family:inherit">
+        <input id="manDe" type="text" placeholder="Deutsch" style="flex:1;padding:10px 12px;border:1.5px solid #e5e5ea;border-radius:10px;font-size:14px;outline:none;font-family:inherit">
+      </div>
+      <button class="btn-primary" onclick="addManual()">Hinzufügen</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast"></div>
+
+<script>
+  const STORAGE_KEY = 'endeTrDict';
+
+  function loadDict() {
+    try { return JSON.parse(localStorage.getItem(STORAGE_KEY)) || []; }
+    catch(e) { return []; }
+  }
+  function saveDict(data) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+  }
+
+  function showToast(msg) {
+    var t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(function() { t.classList.remove('show'); }, 2200);
+  }
+
+  // Tab switching
+  function switchTab(name) {
+    document.querySelectorAll('.tab-btn').forEach(function(b, i) {
+      b.classList.toggle('active', ['dict','flash','import'][i] === name);
+    });
+    document.querySelectorAll('.panel').forEach(function(p) { p.classList.remove('active'); });
+    document.getElementById('panel-' + name).classList.add('active');
+    if (name === 'dict') renderDict();
+    if (name === 'flash') initFlash();
+  }
+
+  // ===== WÖRTERBUCH =====
+  function renderDict() {
+    var data = loadDict();
+    var list = document.getElementById('dictList');
+    var count = document.getElementById('dictCount');
+    count.textContent = data.length;
+
+    if (data.length === 0) {
+      list.innerHTML = '<div class="dict-empty">Noch keine Einträge.<br>Tippe im Bookmarklet auf ✓ und exportiere die Wörter hier.</div>';
+      return;
+    }
+
+    list.innerHTML = data.map(function(e, i) {
+      var d = e.date ? new Date(e.date).toLocaleDateString('de-DE', {day:'2-digit', month:'2-digit'}) : '';
+      return '<div class="dict-row">'
+        + '<span class="dict-num">' + (i+1) + '.</span>'
+        + '<span class="dict-en">' + esc(e.en) + '</span>'
+        + '<span class="dict-de">' + esc(e.de) + '</span>'
+        + (d ? '<span class="dict-date">' + d + '</span>' : '')
+        + '<button class="dict-del" onclick="deleteEntry(' + e.id + ')">×</button>'
+        + '</div>';
+    }).join('');
+  }
+
+  function deleteEntry(id) {
+    var data = loadDict().filter(function(e) { return e.id !== id; });
+    saveDict(data);
+    renderDict();
+    showToast('Eintrag gelöscht');
+  }
+
+  function clearAll() {
+    if (!confirm('Alle ' + loadDict().length + ' Einträge wirklich löschen?')) return;
+    saveDict([]);
+    renderDict();
+    showToast('Wörterbuch geleert');
+  }
+
+  function exportDict() {
+    var data = loadDict();
+    if (data.length === 0) { showToast('Keine Einträge zum Exportieren'); return; }
+    var lines = data.map(function(e, i) { return (i+1) + '. ' + e.en + ' | ' + e.de; });
+    var text = 'EN→DE Wörterbuch:\n\n' + lines.join('\n');
+    if (navigator.share) {
+      navigator.share({ title: 'EN→DE Wörterbuch', text: text }).catch(function() { copyText(text); });
+    } else {
+      copyText(text);
+    }
+  }
+
+  function copyText(text) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(function() { showToast('In Zwischenablage kopiert!'); }).catch(fbCopy.bind(null, text));
+    } else { fbCopy(text); }
+  }
+  function fbCopy(text) {
+    var ta = document.createElement('textarea');
+    ta.value = text; ta.style.cssText = 'position:fixed;top:-999px';
+    document.body.appendChild(ta); ta.select();
+    try { document.execCommand('copy'); showToast('Kopiert!'); } catch(e) {}
+    ta.remove();
+  }
+
+  // ===== IMPORT =====
+  function importEntries() {
+    var raw = document.getElementById('importText').value.trim();
+    if (!raw) { showToast('Bitte Text einfügen'); return; }
+
+    var lines = raw.split('\n');
+    var data = loadDict();
+    var added = 0;
+
+    lines.forEach(function(line) {
+      line = line.trim();
+      if (!line) return;
+      // strip leading number: "1. " or "1) "
+      line = line.replace(/^\d+[\.\)]\s*/, '');
+      var parts = line.split('|');
+      if (parts.length < 2) return;
+      var en = parts[0].trim();
+      var de = parts.slice(1).join('|').trim();
+      if (!en || !de) return;
+      if (data.some(function(e) { return e.en === en; })) return;
+      data.push({ id: Date.now() + added, en: en, de: de, date: Date.now() });
+      added++;
+    });
+
+    saveDict(data);
+    document.getElementById('importText').value = '';
+    showToast(added + ' Einträge importiert');
+    switchTab('dict');
+  }
+
+  function addManual() {
+    var en = document.getElementById('manEn').value.trim();
+    var de = document.getElementById('manDe').value.trim();
+    if (!en || !de) { showToast('Bitte beide Felder ausfüllen'); return; }
+    var data = loadDict();
+    if (data.some(function(e) { return e.en === en; })) { showToast('Bereits vorhanden'); return; }
+    data.push({ id: Date.now(), en: en, de: de, date: Date.now() });
+    saveDict(data);
+    document.getElementById('manEn').value = '';
+    document.getElementById('manDe').value = '';
+    showToast('Hinzugefügt ✓');
+    switchTab('dict');
+  }
+
+  // ===== KARTEIKARTEN =====
+  var flashData = [], flashIdx = 0, flashScore = 0, flashAnswerShown = false;
+
+  function initFlash() {
+    var data = loadDict();
+    if (data.length === 0) {
+      document.getElementById('flashContent').innerHTML = '<div class="flash-empty">Noch keine Einträge im Wörterbuch.<br>Importiere zuerst ein paar Wörter!</div>';
+      return;
+    }
+    flashData = data.slice().sort(function() { return Math.random() - 0.5; });
+    flashIdx = 0; flashScore = 0;
+    renderFlashCard();
+  }
+
+  function renderFlashCard() {
+    var fc = document.getElementById('flashContent');
+    if (flashIdx >= flashData.length) {
+      fc.innerHTML = '<div class="flash-result">'
+        + '<div class="score">' + flashScore + '/' + flashData.length + '</div>'
+        + '<div class="score-label">richtig gewusst 🎉</div>'
+        + '<button class="btn-primary" onclick="initFlash()" style="max-width:220px;margin:0 auto;display:block">Nochmal üben</button>'
+        + '</div>';
+      return;
+    }
+
+    var e = flashData[flashIdx];
+    fc.innerHTML = '<div class="flash-counter">' + (flashIdx+1) + ' / ' + flashData.length + '</div>'
+      + '<div class="flash-card">'
+      + '<div class="flash-label">Englisch</div>'
+      + '<div class="flash-question">' + esc(e.en) + '</div>'
+      + '<div class="flash-label">Deutsch</div>'
+      + '<div class="flash-answer" id="flashAns"></div>'
+      + '</div>'
+      + '<div class="flash-btns">'
+      + '<button class="btn-reveal" id="btnReveal" onclick="revealAnswer()">Antwort zeigen</button>'
+      + '<div class="flash-judge" id="flashJudge" style="display:none">'
+      + '<button class="btn-forgot" onclick="judgeCard(false)">Nicht gewusst ✗</button>'
+      + '<button class="btn-knew" onclick="judgeCard(true)">Gewusst ✓</button>'
+      + '</div>'
+      + '</div>';
+  }
+
+  function revealAnswer() {
+    var e = flashData[flashIdx];
+    document.getElementById('flashAns').textContent = e.de;
+    document.getElementById('btnReveal').style.display = 'none';
+    document.getElementById('flashJudge').style.display = '';
+  }
+
+  function judgeCard(knew) {
+    if (knew) flashScore++;
+    flashIdx++;
+    renderFlashCard();
+  }
+
+  // Helpers
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  // Initial render
+  renderDict();
+</script>
+</body>
+</html>
