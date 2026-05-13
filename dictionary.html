@@ -606,6 +606,30 @@
     return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
   }
 
+  // Auto-save from bookmarklet via URL params (?add=word&tr=translation)
+  (function() {
+    var params = new URLSearchParams(window.location.search);
+    var en = params.get('add');
+    var de = params.get('tr');
+    if (!en || !de) return;
+
+    // Save entry
+    var data = loadDict();
+    if (!data.some(function(e) { return e.en === en; })) {
+      data.push({ id: Date.now(), en: en, de: de, date: Date.now() });
+      saveDict(data);
+    }
+
+    // Show fullscreen save confirmation, then close tab
+    document.body.innerHTML = '<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,#667eea,#764ba2);color:#fff;font-family:-apple-system,sans-serif;text-align:center;padding:20px">'
+      + '<div style="font-size:64px;margin-bottom:16px">✓</div>'
+      + '<div style="font-size:22px;font-weight:700;margin-bottom:8px">Gespeichert!</div>'
+      + '<div style="font-size:17px;opacity:.9;margin-bottom:4px">' + esc(en) + '</div>'
+      + '<div style="font-size:15px;opacity:.75">→ ' + esc(de) + '</div>'
+      + '</div>';
+    setTimeout(function() { window.close(); }, 1500);
+  })();
+
   // Initial render
   renderDict();
 </script>
