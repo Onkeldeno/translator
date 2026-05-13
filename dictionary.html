@@ -515,6 +515,15 @@
 <!-- ===== IMPORTIEREN ===== -->
 <div id="panel-import" class="panel">
   <div class="card" style="margin-top:16px">
+    <div class="card-title">Backup</div>
+    <div class="import-area">
+      <p class="import-hint">Sichere alle Vokabeln, Ordner und Einstellungen als Datei — z.B. in iCloud Drive. Damit kannst du alles jederzeit wiederherstellen.</p>
+      <button class="btn-primary" onclick="createBackup()" style="margin-bottom:10px">💾 Backup erstellen</button>
+      <button class="btn-primary" onclick="document.getElementById('backupFileInput').click()" style="background:linear-gradient(135deg,#43b89c,#2d9e7a)">📂 Backup laden</button>
+      <input type="file" id="backupFileInput" accept=".json" style="display:none" onchange="loadBackup(this)">
+    </div>
+  </div>
+  <div class="card" style="margin-top:12px">
     <div class="card-title">Aus Bookmarklet exportieren</div>
     <div class="import-area">
       <p class="import-hint">Im Bookmarklet: <strong>📖 Wörterbuch</strong> öffnen → <strong>⬆ Exportieren</strong> tippen → Text kopieren → hier einfügen.</p>
@@ -1181,6 +1190,58 @@ function addSelectionToFolder(folderId) {
   saveFolders(folders);
   hideModal();
   showToast(added + ' Wörter zu "' + folder.name + '" hinzugefügt ✓');
+}
+
+// ===== BACKUP =====
+function createBackup() {
+  var backup = {
+    version: 1,
+    date: new Date().toISOString(),
+    dict: loadDict(),
+    folders: loadFolders(),
+    missed: loadMissed(),
+    flashCount: getFlashCount()
+  };
+  var json = JSON.stringify(backup, null, 2);
+  var blob = new Blob([json], { type: 'application/json' });
+  var url = URL.createObjectURL(blob);
+  var date = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }).replace(/\./g, '-');
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'woerterbuch-backup-' + date + '.json';
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  URL.revokeObjectURL(url);
+  showToast('Backup erstellt ✓');
+}
+
+function loadBackup(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var backup = JSON.parse(e.target.result);
+      if (!backup.dict || !Array.isArray(backup.dict)) {
+        showToast('Ungültige Backup-Datei'); return;
+      }
+      if (!confirm('Backup laden?\n\n' + backup.dict.length + ' Vokabeln, ' + (backup.folders || []).length + ' Ordner werden wiederhergestellt.\n\nAktuelle Daten werden überschrieben.')) {
+        input.value = ''; return;
+      }
+      saveDict(backup.dict);
+      saveFolders(backup.folders || []);
+      saveMissed(backup.missed || []);
+      if (backup.flashCount) setFlashCount(backup.flashCount);
+      input.value = '';
+      showToast(backup.dict.length + ' Vokabeln wiederhergestellt ✓');
+      switchTab('dict');
+    } catch(err) {
+      showToast('Fehler beim Laden der Datei');
+      input.value = '';
+    }
+  };
+  reader.readAsText(file);
 }
 
 // ===== AUTO-SAVE FROM BOOKMARKLET =====
