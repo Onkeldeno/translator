@@ -1264,6 +1264,14 @@ function loadBackup(input) {
   setTimeout(function() { window.close(); }, 1500);
 })();
 
+// ===== POSTMESSAGE (für Bookmarklet-Highlight-Sync) =====
+window.addEventListener('message', function(e) {
+  if (e.data && e.data.type === 'getDict') {
+    var dict = loadDict();
+    try { e.source.postMessage({ type: 'endeTrDict', dict: dict }, e.origin); } catch(err) {}
+  }
+});
+
 // ===== INIT =====
 renderDict();
 </script>
